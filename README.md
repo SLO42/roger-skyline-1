@@ -1,4 +1,5 @@
 # Roger-Skyline-1 
+Configuring a Virtual Machine to be more secure
 
 Using ubuntu-18.04.3-live-server-amd64.iso with VirtualBox Manager Version 5.2.2 r119230 (Qt5.6.3);
 * netinst.iso for downloading the bigger parts during install.
