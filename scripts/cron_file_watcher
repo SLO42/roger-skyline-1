@@ -1,0 +1,10 @@
+#!/bin/bash
+
+controlStat=$(stat -c %Y "/etc/crontab")
+while sleep 1; do liveStat=$(stat -c %Y "/etc/crontab")
+    if [[ $liveStat != $controlStat ]]; then echo "MODIFIED" | mail -s "file was modified" root@roger.skyline < /dev/null; controlStat=$liveStat; fi
+done
+
+# echo "0 4 * * 1 ./var/update_script.sh
+# 0 0 * * * bash /var/cron_file_watcher &
+# @reboot bash /var/update_script.sh " | sudo crontab

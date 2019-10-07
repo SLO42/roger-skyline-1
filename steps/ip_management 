@@ -1,0 +1,90 @@
+this is what i did to create the static ip and apply the specifc netmask
+
+i followed this guy for this part. but only what i needed.
+under the CLI section of course.
+
+https://linuxconfig.org/how-to-set-a-static-ip-address-on-debian-10-buster
+
+
+debian: 
+
+if root then
+	nano /etc/network/interfaces
+
+if user then
+	sudo nano /etc/network/interfaces
+
+inside nano
+{
+	# The loopback network interface
+	auto lo eth0
+	iface lo inet loopback
+
+	# The primary network interface
+add   ->auto enp0s8
+add 1 ->iface enp0s8 inet static
+add 2 ->	address 192.168.99.101
+add 3 ->	netmask 255.255.255.252
+}
+
+1) we repalce dhcp with static to signify static ip that wont be auto reset
+2) we add the custom static address of our choice.
+3) we add the required netmask of /30 aka 255.255.255.252
+
+restart the service: i used.
+
+sudo systemctl restart networking
+
+double check with:
+	ip -br -h -f inet a
+
+*flags
+br : brief
+h  : human readable
+f  : family { inet } # allows us to only get the field we want.
+a  : I think address. 
+
+
+ubuntu: 
+
+
+Create the Static ip that we will use.
+
+i used netplan, i dont recommend it.
+
+at /etc/netplan/
+we will have some files, on being *.yaml
+they have a specific type script so dont use any tabs...
+
+enp0s3 should be left alone as it wont be our static ip.
+`
+
+network:
+    ethernets:
+        enp0s3:
+            dhcp4: true
+        enp0s8:
+            dhcp4: false
+            addresses: [192.168.99.101/30]
+    version: 2
+
+`
+add the enp0s8 nonsense to declare the static ip of 192.168.99.101 with a subnet/netmask of 255.255.255.252 or /30
+
+now do 
+
+sudo service netplan --debug apply.
+
+with the --debug flag you can see if any mistakes have been made.
+
+@@@@
+
+Sometimes a restart might not hurt, i dont really remember the ammount of times this machine has been reset
+
+@@@
+
+
+
+this should conclude setting up the static ip and setting the netmask of /30.
+
+continue to ssh_PortnKeys.

@@ -1,0 +1,94 @@
+This is what i did to set up ssh access.
+
+
+For the port:
+
+On HOST:
+
+in Virtualbox Manager -> File -> Host Network Manager 
+create new host-only network.
+disable DHCP cause PDF says no to that.
+
+set ip to something useable 
+in my case : 192.168.99.1
+with the subnet/network mask to be 255.255.255.252 or /30 
+
+apply.
+
+VM settings -> Network 
+Adapter 1 should be NAT (Network address translator)
+Advanced -> Port Forwarding 
+Add a new Rule that has:
+ protocol TCP, host ip: 192.168.99.1, host Port: 2000, Guest IP : 192.168.99.101, Guest Port: 690
+
+ Guest port is the ssh port we will set later.
+
+ok.
+
+Adapter 2 set to Host-Only Adapter with the name being the newly created host-only network.
+
+done with that nonsense.
+
+machine Time! 
+
+make sure service ssh is running with
+    sudo service ssh status
+as well as our networks.
+    ifconfig -a OR ip -br -h -f inet a
+initaly we should see 2,
+lo at 127.0.0.1
+and
+enp0s3 at 10.0.2.15 or something similar.
+
+thats great but now we gotta set up that third addapter.
+
+
+MAKE sure you have done  either debian or ubuntu's section in /steps/ip_management
+
+
+as user
+    sudo nano /etc/ssh/sshd_config
+standard config file, everything commented out.
+find the line that says #Port, real close to the top, and remove the '#' on the line.
+change the number to anything really between 50,000 and 65,000 so that you are in the safe zone.
+in our case we set port to 690 
+(anything bellow 1000 didnt seem to work or i was doing it wrong.. idk)
+
+
+dissallow root account access:
+Change PermitRootLogin's value to no
+
+dissallow password auth aka only allow key auth: (Maybe after adding keys. havent tested.)
+Change PasswordAuthentication's value to no
+
+
+
+sudo service sshd restart
+
+
+KEYGEN! not really sure how they wanted this done, besides you know, setting up the thing,
+so we are going to use a RSA key from this local machine. 
+
+if running properly:
+
+    on Host: 
+    ssh roger@192.168.99.1 -p 2000
+    this should deny you because of the we dont allow passwords 
+
+    now we create the RSA keys ssh-keygen
+
+    now we move the rsa key to the machine with 
+    ssh-copy-id roger@192.168.99.1 -p 2000
+
+if this doesnt work, you'll have to edit the /etc/ssh/sshd_config
+and Change PasswordAuthentication's value to yes.
+sudo service ssh restart 
+
+then you should be able to copy the id, confirm with roger's password.
+Now you can re-edit PasswordAuthentication's value to yes.
+sudo service ssh restart
+
+
+
+that should(?) conclude setting up the static ip's connection to host, ssh, using publickeys and blocking root access to system.
+

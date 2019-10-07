@@ -1,0 +1,12 @@
+#!/bin/bash
+
+controlStat=$(cat /var/log/syslog | grep cron | grep REPLACE -c)
+while sleep 1; do liveStat=$(cat /var/log/syslog | grep cron | grep REPLACE -c)
+    if [[ $liveStat != $controlStat ]]; then echo "MODIFIED" | mail -s "System has logged that the edit of Crontab has occured" root@localhost < /dev/null; controlStat=$liveStat; fi
+done
+
+# echo "0 4 * * 1 ./var/update_script.sh
+# 0 0 * * * bash /var/cron_watcher &
+# @reboot bash /var/update_script.sh " | sudo crontab
+
+# cat /var/log/syslog | grep cron -c
